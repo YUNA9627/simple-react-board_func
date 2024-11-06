@@ -3,69 +3,60 @@ import './App.css';
 import BoardList from './BoardList';
 import Write from './Write';
 import View from './View';
-import React, { Component } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-export default class App extends Component {
-  state = {
-    isModifyMode:false, // 수정모드 여부 설정
-    isComplete:true, // 렌더완료(목록 출력 완료)
-    boardId:0, // 수정, 삭제할 글 번호
-    redirect_to_write:false,
-    redirect_to_home:false
-  }
+function App(){
+  const [isModifyMode, setIsModifyMod] = useState(false);
+  const [isComplete, setIsComplete] = useState(true);
+  const [boardId, setBoardId] = useState(0);
+  const [redirectToWrite, setRedirectToWrite] = useState(false);
+  const [redirectToHome, setRedirectToHome] = useState(false);
 
-  handleModify = (CheckList)=>{
+  const handleModify = (CheckList)=>{
     if(CheckList.length === 0){
       alert('수정할 게시글을 선택하세요.')
     }else if(CheckList.length > 1){
       alert('하나의 게시글만 선택하세요.')
-    }
-    this.setState({
-      isModifyMode:CheckList.length === 1,
-      boardId:CheckList[0] || 0,
-      redirect_to_write:true
-    });
-  }
-
-  handleCancel = ()=>{
-    this.setState({
-      isModifyMode:false,
-      isComplete:false,
-      boardId:0,
-      redirect_to_home:true
-    })
-  }
-
-  componentDidUpdate(){
-    // 리다이렉트 후 redirect 상태 초기화
-    if(this.state.redirect_to_write){
-      this.setState({redirect_to_write:false});
-    }
-    if(this.state.redirect_to_home){
-      this.setState({redirect_to_home:false});
+    }else {
+      setIsModifyMod(true);
+      setBoardId(CheckList[0]);
+      setRedirectToHome(true);
     }
   }
 
-  render() {
-    return (
-      <BrowserRouter>
+  const handleCancel = ()=>{
+    setIsModifyMod(false);
+    setIsComplete(false);
+    setBoardId(0);
+    setRedirectToHome(true);
+  }
+
+  useEffect(()=>{
+    if(redirectToHome) setRedirectToHome(false);
+    if(redirectToWrite) setRedirectToWrite(false);
+  },[redirectToWrite, redirectToHome])
+
+  return(
+    <BrowserRouter>
         <div className="container">
           <h1 className="mb-4 mt-1">React Board</h1>
-          {this.state.redirect_to_write && <Navigate to="/write" />}
-          {this.state.redirect_to_home && <Navigate to="/" />}
+          {redirectToWrite && <Navigate to="/write" />}
+          {redirectToHome && <Navigate to="/" />}
           <Routes>
-            <Route path="/" element={<BoardList isComplete={this.state.isComplete} handleModify={this.handleModify}/>}/>
+            <Route path="/" element={<BoardList isComplete={isComplete} handleModify={handleModify}/>}/>
             <Route path="/write" element={<Write 
-              isModifyMode={this.state.isModifyMode} 
-              boardId={this.state.boardId} 
-              handleCancel={this.handleCancel} 
+              isModifyMode={isModifyMode} 
+              boardId={boardId} 
+              handleCancel={handleCancel} 
             />}
             />
-            <Route path="/view" element={<View/>}/>
+            <Route path="/view/:Id" element={<View/>}/>
           </Routes>
         </div>
-      </BrowserRouter>
-    )
-  }
+    </BrowserRouter>
+  )
+  
 }
+
+export default App;
