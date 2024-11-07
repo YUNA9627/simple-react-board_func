@@ -21,7 +21,7 @@ function App(){
     }else {
       setIsModifyMod(true);
       setBoardId(CheckList[0]);
-      setRedirectToHome(true);
+      setRedirectToWrite(true);
     }
   }
 
@@ -51,7 +51,7 @@ function App(){
               handleCancel={handleCancel} 
             />}
             />
-            <Route path="/view/:Id" element={<View/>}/>
+            <Route path="/view/:id" element={<View/>}/>
           </Routes>
         </div>
     </BrowserRouter>
